@@ -21,15 +21,14 @@ import io.github.flaredgitee.core.models.FirewallRule
 import com.tencentcloudapi.lighthouse.v20200324.models.FirewallRule as SdkFirewallRule
 
 /** Converts Lighthouse SDK rule info into the internal [FirewallRule]. */
-fun FirewallRuleInfo.toCommonModel(): FirewallRule =
-    FirewallRule(
-        protocol = this.protocol,
-        port = this.port,
-        action = this.action,
-        description = this.firewallRuleDescription,
-        ipv4Cidr = this.cidrBlock,
-        ipv6Cidr = this.ipv6CidrBlock
-    )
+fun FirewallRuleInfo.toCommonModel(): FirewallRule = FirewallRule(
+    protocol = protocol,
+    port = port,
+    action = action,
+    description = firewallRuleDescription,
+    ipv4Cidr = cidrBlock.ifEmpty { null },
+    ipv6Cidr = ipv6CidrBlock.ifEmpty { null },
+)
 
 /** Converts the internal [FirewallRule] into a Lighthouse SDK rule request object. */
 fun FirewallRule.toSdkModel(): SdkFirewallRule = let { commonRule ->

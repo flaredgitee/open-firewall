@@ -23,23 +23,21 @@ import io.github.flaredgitee.core.spi.IpResolver
 /** Coordinates IP resolution and firewall updates for a single CLI invocation. */
 class FirewallOrchestrator(
     private val firewallProvider: FirewallProvider,
-    private val ipResolver: IpResolver
+    private val ipResolver: IpResolver,
 ) {
     /**
      * Resolves the current IP, reads remote firewall rules, plans updates, and applies them if needed.
      */
     fun runByConfig(config: AppConfig): Result<FirewallOrchestrator> = runCatching {
-        val ip =
-            ipResolver.resolve(config.ipCommand)
-                .onFailure { println("Failed to get IP: ${it.message}") }
-                .getOrElse { throw it }
+        val ip = ipResolver.resolve(config.ipCommand)
+            .onFailure { println("Failed to get IP: ${it.message}") }
+            .getOrElse { throw it }
 
-        val currentRules =
-            firewallProvider.fetchRules(config.instanceId)
-                .onFailure { println("Failed to fetch rules: ${it.message}") }
-                .getOrElse { throw it }
+        val currentRules = firewallProvider.fetchRules(config.instanceId)
+            .onFailure { println("Failed to fetch rules: ${it.message}") }
+            .getOrElse { throw it }
 
-        val newRules = FirewallRulePlanner.calculateDesiredRules(currentRules, ip, config.ruleName)
+        val newRules = calculateDesiredRules(currentRules, ip, config.ruleName)
 
         newRules?.let { desiredRules ->
             println("Record new IP $ip to server firewall")

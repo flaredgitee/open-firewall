@@ -18,38 +18,35 @@ package io.github.flaredgitee.core
 
 import io.github.flaredgitee.core.models.FirewallRule
 
-/** Computes whether firewall rules need to change and returns the desired ruleset. */
-object FirewallRulePlanner {
-    /**
-     * Compares the current rules with the latest IP and returns a new list when an update is required.
-     */
-    fun calculateDesiredRules(
-        currentRules: List<FirewallRule>,
-        currentIp: String,
-        appName: String
-    ): List<FirewallRule>? {
-        val isV6 = currentIp.contains(":")
-        val ipExists =
-            currentRules.any { rule ->
-                val ruleIp = if (isV6) rule.ipv6Cidr else rule.ipv4Cidr
-                ruleIp == currentIp
-            }
-
-        if (ipExists) {
-            return null
-        }
-
-        val keptRules = currentRules.filter { it.description != appName }
-        val newRule =
-            FirewallRule(
-                protocol = "ALL",
-                port = "ALL",
-                action = "ACCEPT",
-                description = appName,
-                ipv6Cidr = if (isV6) currentIp else null,
-                ipv4Cidr = if (!isV6) currentIp else null
-            )
-
-        return keptRules + newRule
+/**
+ * Compares the current rules with the latest IP and returns a new list when an update is required.
+ */
+fun calculateDesiredRules(
+    currentRules: List<FirewallRule>,
+    currentIp: String,
+    appName: String
+): List<FirewallRule>? {
+    val isV6 = currentIp.contains(":")
+    val ipExists = currentRules.any { rule ->
+        val ruleIp = if (isV6) rule.ipv6Cidr else rule.ipv4Cidr
+        ruleIp == currentIp
     }
+
+    if (ipExists) {
+        return null
+    }
+
+    val keptRules = currentRules.filter { it.description != appName }
+    val newRule = FirewallRule(
+        protocol = "ALL",
+        port = "ALL",
+        action = "ACCEPT",
+        description = appName,
+        ipv6Cidr = if (isV6) currentIp else null,
+        ipv4Cidr = if (!isV6) currentIp else null,
+    )
+
+    val newRules = keptRules + newRule
+
+    return newRules
 }
