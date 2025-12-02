@@ -52,7 +52,7 @@ fun main(args: Array<String>) {
     val ipResolver = ShellIpResolver()
     val orchestrator = FirewallOrchestrator(firewallProvider, ipResolver)
 
-    println("Starting OpenFirewall for instance ${config.instanceId}...")
+    println("Starting OpenFirewall for ${config.region} ${config.instanceId}...")
 
     val result = orchestrator.runByConfig(config)
         .onFailure { e ->

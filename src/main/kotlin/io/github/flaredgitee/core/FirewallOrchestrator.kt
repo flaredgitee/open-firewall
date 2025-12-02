@@ -29,7 +29,11 @@ class FirewallOrchestrator(
      * Resolves the current IP, reads remote firewall rules, plans updates, and applies them if needed.
      */
     fun runByConfig(config: AppConfig): Result<FirewallOrchestrator> = runCatching {
-        val ip = ipResolver.resolve(config.ipCommand)
+
+        val ip = config.ipCommand
+            .also { println("Try to get IP with: $it") }
+            .let(ipResolver::resolve)
+            .onSuccess { println("Got current IP successfully: $it") }
             .onFailure { println("Failed to get IP: ${it.message}") }
             .getOrElse { throw it }
 
